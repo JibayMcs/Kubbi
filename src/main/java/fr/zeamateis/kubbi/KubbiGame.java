@@ -11,18 +11,18 @@ import fr.leviathanstudio.engine.graph.particles.Particle;
 import fr.leviathanstudio.engine.items.GameItem;
 import fr.leviathanstudio.engine.items.SkyBox;
 import fr.leviathanstudio.engine.loaders.assimp.AnimMeshesLoader;
-import fr.leviathanstudio.engine.loaders.assimp.StaticMeshesLoader;
 import fr.leviathanstudio.engine.loaders.obj.OBJLoader;
-import fr.leviathanstudio.engine.sound.SoundBuffer;
-import fr.leviathanstudio.engine.sound.SoundListener;
-import fr.leviathanstudio.engine.sound.SoundManager;
-import fr.leviathanstudio.engine.sound.SoundSource;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.lwjgl.openal.AL11;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.stb.STBImage.stbi_failure_reason;
+import static org.lwjgl.stb.STBImage.stbi_load;
 
 public class KubbiGame implements IGameLogic {
 
@@ -56,15 +56,15 @@ public class KubbiGame implements IGameLogic {
 
     private FlowParticleEmitter particleEmitter;
 
-    private final SoundManager soundManager;
+    //private final SoundManager soundManager;
 
-    private enum Sounds {MUSIC, BEEP, FIRE}
+    //private enum Sounds {MUSIC, BEEP, FIRE}
 
 
     public KubbiGame() {
         renderer = new Renderer();
         camera = new Camera();
-        soundManager = new SoundManager();
+        // soundManager = new SoundManager();
         cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
         angleInc = 0;
         lightAngle = 90;
@@ -73,24 +73,48 @@ public class KubbiGame implements IGameLogic {
 
     @Override
     public void init(Window window) throws Exception {
-        soundManager.init();
+        // soundManager.init();
         hud.init(window);
 
         renderer.init(window);
 
         scene = new Scene();
 
-        Mesh[] houseMesh = StaticMeshesLoader.load("models/house/house.obj", "models/house");
-        GameItem house = new GameItem(houseMesh);
+        //====TERRAIN====//
 
-        Mesh[] terrainMesh = StaticMeshesLoader.load("models/terrain/terrain.obj", "models/terrain");
-        GameItem terrain = new GameItem(terrainMesh);
-        terrain.setScale(100.0f);
+        float reflectance = 0.5f;
 
-        animItem = AnimMeshesLoader.loadAnimGameItem("models/bob/boblamp.md5mesh", ".");
-        animItem.setScale(0.05f);
-        animation = animItem.getCurrentAnimation();
-        animItem.setPosition(50, 0, 0);
+        float blockScale = 1.0f;
+        float skyBoxScale = 100.0f;
+        float extension = 2.0f;
+
+        float startx = extension * (-skyBoxScale + blockScale);
+        float startz = extension * (skyBoxScale - blockScale);
+        float starty = -1.0f;
+        float inc = blockScale * 1;
+
+        float posx = startx;
+        float posz = startz;
+        float incy;
+
+        ByteBuffer buf;
+        int width;
+        int height;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            IntBuffer channels = stack.mallocInt(1);
+
+            buf = stbi_load("./textures/heightmap.png", w, h, channels, 4);
+            if (buf == null) {
+                throw new Exception("Image file not loaded: " + stbi_failure_reason());
+            }
+
+            width = w.get();
+            height = h.get();
+        }
+
+        int instances = height * width;
 
         float[] positions = new float[]{
                 // V0
@@ -189,16 +213,39 @@ public class KubbiGame implements IGameLogic {
         Texture texture = new Texture("./textures/rock.png");
         Texture normalMap = new Texture("./textures/rock_normals.png");
 
-        float reflectance = 1.0f;
         Material quadMaterial2 = new Material(texture, reflectance);
         quadMaterial2.setNormalMap(normalMap);
         Mesh cubeMesh = new Mesh(positions, textCoords, textCoords, indices);
 
         cubeMesh.setMaterial(quadMaterial2);
+        GameItem[] gameItems = new GameItem[instances];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                GameItem gameItem = new GameItem(cubeMesh);
+                gameItem.setScale(blockScale);
+                int rgb = HeightMapMesh.getRGB(i, j, width, buf);
+                incy = rgb / (10 * 255 * 255);
+                gameItem.setPosition(posx, starty + incy, posz);
+                int textPos = Math.random() > 0.5f ? 0 : 1;
+                gameItem.setTextPos(textPos);
+                gameItems[i * width + j] = gameItem;
 
-        GameItem cubeTest = new GameItem(cubeMesh);
+                posx += inc;
+            }
+            posx = startx;
+            posz -= inc;
+        }
+        scene.setGameItems(gameItems);
 
-        scene.setGameItems(new GameItem[]{terrain, animItem, cubeTest});
+        //====END TERRAIN====//
+
+        animItem = AnimMeshesLoader.loadAnimGameItem("models/bob/boblamp.md5mesh", ".");
+        animItem.setScale(0.05f);
+        animation = animItem.getCurrentAnimation();
+        animItem.setPosition(50, 0, 0);
+
+
+        //scene.setGameItems(new GameItem[]{terrain, animItem, cubeTest});
 
         int maxParticles = 200;
         Vector3f particleSpeed = new Vector3f(0, 1, 0);
@@ -219,7 +266,7 @@ public class KubbiGame implements IGameLogic {
         particleEmitter.setPositionRndRange(range);
         particleEmitter.setSpeedRndRange(range);
         particleEmitter.setAnimRange(10);
-        this.scene.setParticleEmitters(new FlowParticleEmitter[]{particleEmitter});
+        //this.scene.setParticleEmitters(new FlowParticleEmitter[]{particleEmitter});
 
         // Shadows
         scene.setRenderShadows(true);
@@ -229,10 +276,9 @@ public class KubbiGame implements IGameLogic {
         // scene.setFog(new Fog(true, fogColour, 0.02f));
 
         // Setup  SkyBox
-        float skyBoxScale = 100.0F;
         SkyBox skyBox = new SkyBox("models/skybox.obj", new Vector4f(0.65f, 0.65f, 0.65f, 1.0f));
         skyBox.setScale(skyBoxScale);
-        //scene.setSkyBox(skyBox);
+        scene.setSkyBox(skyBox);
 
         // Setup Lights
         setupLights();
@@ -243,11 +289,11 @@ public class KubbiGame implements IGameLogic {
         camera.getRotation().x = 20.0f;
         camera.getRotation().y = 140.f;
 
-        soundManager.setAttenuationModel(AL11.AL_EXPONENT_DISTANCE);
-        setupSounds();
+        //soundManager.setAttenuationModel(AL11.AL_EXPONENT_DISTANCE);
+        //setupSounds();
     }
 
-    private void setupSounds() throws Exception {
+   /* private void setupSounds() throws Exception {
         SoundBuffer buffBack = new SoundBuffer("/sounds/background.ogg");
         soundManager.addSoundBuffer(buffBack);
         SoundSource sourceBack = new SoundSource(true, true);
@@ -272,7 +318,7 @@ public class KubbiGame implements IGameLogic {
         soundManager.setListener(new SoundListener(new Vector3f()));
 
         sourceBack.play();
-    }
+    }*/
 
     private void setupLights() {
         SceneLight sceneLight = new SceneLight();
@@ -288,8 +334,8 @@ public class KubbiGame implements IGameLogic {
         DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightDirection, lightIntensity);
         sceneLight.setDirectionalLight(directionalLight);
 
-        pointLightPos = new Vector3f(0.0f, 25.0f, 0.0f);
-        Vector3f pointLightColour = new Vector3f(0.0f, 1.0f, 0.0f);
+        pointLightPos = new Vector3f(0, 25.0f, 0);
+        Vector3f pointLightColour = new Vector3f(1.0f, 1.0f, 1.0f);
         PointLight.Attenuation attenuation = new PointLight.Attenuation(1, 0.0f, 0);
         PointLight pointLight = new PointLight(pointLightColour, pointLightPos, lightIntensity, attenuation);
         sceneLight.setPointLightList(new PointLight[]{pointLight});
@@ -313,10 +359,10 @@ public class KubbiGame implements IGameLogic {
             sceneChanged = true;
             cameraInc.x = 2;
         }
-        if (window.isKeyPressed(GLFW_KEY_Z)) {
+        if (window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
             sceneChanged = true;
             cameraInc.y = -2;
-        } else if (window.isKeyPressed(GLFW_KEY_X)) {
+        } else if (window.isKeyPressed(GLFW_KEY_SPACE)) {
             sceneChanged = true;
             cameraInc.y = 2;
         }
@@ -370,9 +416,9 @@ public class KubbiGame implements IGameLogic {
         // Update view matrix
         camera.updateViewMatrix();
 
-        particleEmitter.update((long) (interval * 1000));
+        //particleEmitter.update((long) (interval * 1000));
 
-        soundManager.updateListenerPosition(camera);
+        //soundManager.updateListenerPosition(camera);
     }
 
     @Override
@@ -382,13 +428,13 @@ public class KubbiGame implements IGameLogic {
             firstTime = false;
         }
         renderer.render(window, camera, scene, sceneChanged);
-        hud.render(window);
+        //hud.render(window);
     }
 
     @Override
     public void cleanup() {
         renderer.cleanup();
-        soundManager.cleanup();
+        //soundManager.cleanup();
 
         scene.cleanup();
         if (hud != null) {
