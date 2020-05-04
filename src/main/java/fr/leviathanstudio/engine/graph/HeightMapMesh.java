@@ -177,7 +177,7 @@ public class HeightMapMesh {
     }
 
     public static int getRGB(int x, int z, int width, ByteBuffer buffer) {
-        byte r = buffer.get(x * 4 + 0 + z * 4 * width);
+        byte r = buffer.get(x * 4 + z * 4 * width);
         byte g = buffer.get(x * 4 + 1 + z * 4 * width);
         byte b = buffer.get(x * 4 + 2 + z * 4 * width);
         byte a = buffer.get(x * 4 + 3 + z * 4 * width);

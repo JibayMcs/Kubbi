@@ -11,6 +11,7 @@ import fr.leviathanstudio.engine.graph.particles.Particle;
 import fr.leviathanstudio.engine.items.GameItem;
 import fr.leviathanstudio.engine.items.SkyBox;
 import fr.leviathanstudio.engine.loaders.assimp.AnimMeshesLoader;
+import fr.leviathanstudio.engine.loaders.assimp.StaticMeshesLoader;
 import fr.leviathanstudio.engine.loaders.obj.OBJLoader;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -48,9 +49,9 @@ public class KubbiGame implements IGameLogic {
 
     private Vector3f pointLightPos;
 
-    private Animation animation;
+    private Animation animation, cubeAnimation;
 
-    private AnimGameItem animItem;
+    private AnimGameItem animItem, cubeAnimItem;
 
     private Hud hud = new Hud();
 
@@ -59,7 +60,7 @@ public class KubbiGame implements IGameLogic {
     //private final SoundManager soundManager;
 
     //private enum Sounds {MUSIC, BEEP, FIRE}
-
+    GameItem droid;
 
     public KubbiGame() {
         renderer = new Renderer();
@@ -235,17 +236,37 @@ public class KubbiGame implements IGameLogic {
             posx = startx;
             posz -= inc;
         }
-        scene.setGameItems(gameItems);
+        //scene.setGameItems(gameItems);
 
         //====END TERRAIN====//
 
         animItem = AnimMeshesLoader.loadAnimGameItem("models/bob/boblamp.md5mesh", ".");
         animItem.setScale(0.05f);
         animation = animItem.getCurrentAnimation();
-        animItem.setPosition(50, 0, 0);
+        animItem.setPosition(10, 0, 0);
 
+        GameItem bus = new GameItem(StaticMeshesLoader.load("models/bus.dae", "./models/"));
+        bus.setPosition(15, 0, 0);
 
-        //scene.setGameItems(new GameItem[]{terrain, animItem, cubeTest});
+        droid = new GameItem(StaticMeshesLoader.load("models/test.dae", "./models/"));
+        droid.setPosition(20, 0, 0);
+
+        GameItem record = new GameItem(StaticMeshesLoader.load("models/recorder.dae", "./models/"));
+        droid.setPosition(25, 0, 0);
+
+        cubeAnimItem = AnimMeshesLoader.loadAnimGameItem("models/cube.dae", ".");
+        cubeAnimation = cubeAnimItem.getCurrentAnimation();
+        cubeAnimItem.setPosition(30, 0, 0);
+
+        scene.setGameItems(
+                new GameItem[]{
+                        animItem,
+                        droid,
+                        bus,
+                        record,
+                        cubeAnimItem
+                }
+        );
 
         int maxParticles = 200;
         Vector3f particleSpeed = new Vector3f(0, 1, 0);
@@ -325,20 +346,21 @@ public class KubbiGame implements IGameLogic {
         scene.setSceneLight(sceneLight);
 
         // Ambient Light
-        sceneLight.setAmbientLight(new Vector3f(0.3f, 0.3f, 0.3f));
-        sceneLight.setSkyBoxLight(new Vector3f(1.0f, 1.0f, 1.0f));
+        sceneLight.setAmbientLight(new Vector3f(0.0f, 0.0f, 0.0f));
+        sceneLight.setSkyBoxLight(new Vector3f(0.0f, 0.0f, 0.0f));
 
         // Directional Light
         float lightIntensity = 1.0f;
-        Vector3f lightDirection = new Vector3f(0, 1, 1);
-        DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightDirection, lightIntensity);
+        pointLightPos = new Vector3f(0, 1, 1);
+        DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), pointLightPos, lightIntensity);
         sceneLight.setDirectionalLight(directionalLight);
 
-        pointLightPos = new Vector3f(0, 25.0f, 0);
-        Vector3f pointLightColour = new Vector3f(1.0f, 1.0f, 1.0f);
+        Vector3f pointLightColorRed = new Vector3f(1.0f, 0.0f, 0.0f);
+        Vector3f pointLightColorGreen = new Vector3f(0.0f, 1.0f, 0.0f);
         PointLight.Attenuation attenuation = new PointLight.Attenuation(1, 0.0f, 0);
-        PointLight pointLight = new PointLight(pointLightColour, pointLightPos, lightIntensity, attenuation);
-        sceneLight.setPointLightList(new PointLight[]{pointLight});
+        PointLight pointLightRed = new PointLight(pointLightColorRed, new Vector3f(-25, 1, 0), lightIntensity, attenuation);
+        PointLight pointLightGreen = new PointLight(pointLightColorGreen, new Vector3f(25, 1, 0), lightIntensity, attenuation);
+        sceneLight.setPointLightList(new PointLight[]{pointLightRed, pointLightGreen});
     }
 
     @Override
@@ -394,7 +416,7 @@ public class KubbiGame implements IGameLogic {
         }
 
         animation.nextFrame();
-
+        cubeAnimation.nextFrame();
 
         // Update camera position
         camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);

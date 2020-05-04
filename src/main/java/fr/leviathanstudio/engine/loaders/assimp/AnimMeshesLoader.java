@@ -82,10 +82,10 @@ public class AnimMeshesLoader extends StaticMeshesLoader {
         AINode aiRootNode = aiScene.mRootNode();
         Matrix4f rootTransfromation = AnimMeshesLoader.toMatrix(aiRootNode.mTransformation());
         Node rootNode = processNodesHierarchy(aiRootNode, null);
-        Map<String, Animation> animations = processAnimations(aiScene, boneList, rootNode, rootTransfromation);
-        AnimGameItem item = new AnimGameItem(meshes, animations);
 
-        return item;
+        Map<String, Animation> animations = processAnimations(aiScene, boneList, rootNode, rootTransfromation);
+
+        return new AnimGameItem(meshes, animations);
     }
 
     private static List<AnimatedFrame> buildAnimationFrames(List<Bone> boneList, Node rootNode,
