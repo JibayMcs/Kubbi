@@ -1,5 +1,8 @@
 package fr.leviathanstudio.engine;
 
+import fr.leviathanstudio.engine.inputs.Keyboard;
+import fr.leviathanstudio.engine.inputs.MouseInput;
+
 public class GameEngine implements Runnable {
 
     public static final int TARGET_FPS = 120;
@@ -14,6 +17,8 @@ public class GameEngine implements Runnable {
 
     private final MouseInput mouseInput;
 
+    private final Keyboard keyboard;
+
     private double lastFps;
 
     private int fps;
@@ -26,10 +31,11 @@ public class GameEngine implements Runnable {
 
     public GameEngine(String windowTitle, int width, int height, boolean vSync, Window.WindowOptions opts, IGameLogic gameLogic) throws Exception {
         this.windowTitle = windowTitle;
-        window = new Window(windowTitle, width, height, vSync, opts);
-        mouseInput = new MouseInput();
+        this.window = new Window(windowTitle, width, height, vSync, opts);
+        this.mouseInput = new MouseInput();
+        this.keyboard = new Keyboard();
         this.gameLogic = gameLogic;
-        timer = new Timer();
+        this.timer = new Timer();
     }
 
     @Override
@@ -48,6 +54,7 @@ public class GameEngine implements Runnable {
         window.init();
         timer.init();
         mouseInput.init(window);
+        this.keyboard.init(window.getWindowHandle());
         gameLogic.init(window);
         lastFps = timer.getTime();
         fps = 0;
@@ -95,7 +102,7 @@ public class GameEngine implements Runnable {
 
     protected void input() {
         mouseInput.input(window);
-        gameLogic.input(window, mouseInput);
+        gameLogic.input(window, mouseInput, keyboard);
     }
 
     protected void update(float interval) {

@@ -49,7 +49,7 @@ public class Window {
         this.vSync = vSync;
         this.resized = false;
         this.opts = opts;
-        projectionMatrix = new Matrix4f();
+        this.projectionMatrix = new Matrix4f();
     }
 
     public void init() {
@@ -191,10 +191,6 @@ public class Window {
 
     public void setClearColor(float r, float g, float b, float alpha) {
         glClearColor(r, g, b, alpha);
-    }
-
-    public boolean isKeyPressed(int keyCode) {
-        return glfwGetKey(windowHandle, keyCode) == GLFW_PRESS;
     }
 
     public boolean windowShouldClose() {

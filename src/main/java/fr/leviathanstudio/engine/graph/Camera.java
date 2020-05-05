@@ -6,20 +6,23 @@ import org.joml.Vector3f;
 public class Camera {
 
     private final Vector3f position;
+    private final Vector3f cameraInc;
 
     private final Vector3f rotation;
 
     private Matrix4f viewMatrix;
 
     public Camera() {
-        position = new Vector3f();
-        rotation = new Vector3f();
-        viewMatrix = new Matrix4f();
+        this.position = new Vector3f();
+        this.cameraInc = new Vector3f();
+        this.rotation = new Vector3f();
+        this.viewMatrix = new Matrix4f();
     }
 
     public Camera(Vector3f position, Vector3f rotation) {
         this.position = position;
         this.rotation = rotation;
+        this.cameraInc = new Vector3f();
     }
 
     public Vector3f getPosition() {
@@ -66,5 +69,9 @@ public class Camera {
         rotation.x += offsetX;
         rotation.y += offsetY;
         rotation.z += offsetZ;
+    }
+
+    public Vector3f getCameraInc() {
+        return cameraInc;
     }
 }

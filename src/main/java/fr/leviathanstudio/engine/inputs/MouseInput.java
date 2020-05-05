@@ -1,5 +1,6 @@
-package fr.leviathanstudio.engine;
+package fr.leviathanstudio.engine.inputs;
 
+import fr.leviathanstudio.engine.Window;
 import org.joml.Vector2d;
 import org.joml.Vector2f;
 

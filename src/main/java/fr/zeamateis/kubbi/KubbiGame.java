@@ -1,6 +1,9 @@
 package fr.zeamateis.kubbi;
 
-import fr.leviathanstudio.engine.*;
+import fr.leviathanstudio.engine.IGameLogic;
+import fr.leviathanstudio.engine.Scene;
+import fr.leviathanstudio.engine.SceneLight;
+import fr.leviathanstudio.engine.Window;
 import fr.leviathanstudio.engine.graph.*;
 import fr.leviathanstudio.engine.graph.anim.AnimGameItem;
 import fr.leviathanstudio.engine.graph.anim.Animation;
@@ -8,12 +11,15 @@ import fr.leviathanstudio.engine.graph.lights.DirectionalLight;
 import fr.leviathanstudio.engine.graph.lights.PointLight;
 import fr.leviathanstudio.engine.graph.particles.FlowParticleEmitter;
 import fr.leviathanstudio.engine.graph.particles.Particle;
+import fr.leviathanstudio.engine.inputs.Keyboard;
+import fr.leviathanstudio.engine.inputs.MouseInput;
 import fr.leviathanstudio.engine.items.GameItem;
 import fr.leviathanstudio.engine.items.SkyBox;
 import fr.leviathanstudio.engine.loaders.assimp.AnimMeshesLoader;
 import fr.leviathanstudio.engine.loaders.assimp.StaticMeshesLoader;
 import fr.leviathanstudio.engine.loaders.obj.OBJLoader;
-import org.joml.Vector2f;
+import fr.zeamateis.kubbi.common.entity.IControllable;
+import fr.zeamateis.kubbi.common.entity.Player;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
@@ -21,23 +27,18 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_load;
 
 public class KubbiGame implements IGameLogic {
 
-    private static final float MOUSE_SENSITIVITY = 0.2f;
-
-    private final Vector3f cameraInc;
+    //private final Vector3f cameraInc;
 
     private final Renderer renderer;
 
     private final Camera camera;
 
     private Scene scene;
-
-    private static final float CAMERA_POS_STEP = 0.40f;
 
     private float angleInc;
 
@@ -66,7 +67,6 @@ public class KubbiGame implements IGameLogic {
         renderer = new Renderer();
         camera = new Camera();
         // soundManager = new SoundManager();
-        cameraInc = new Vector3f(0.0f, 0.0f, 0.0f);
         angleInc = 0;
         lightAngle = 90;
         firstTime = true;
@@ -248,11 +248,11 @@ public class KubbiGame implements IGameLogic {
         GameItem bus = new GameItem(StaticMeshesLoader.load("models/bus.dae", "./models/"));
         bus.setPosition(15, 0, 0);
 
-        droid = new GameItem(StaticMeshesLoader.load("models/test.dae", "./models/"));
-        droid.setPosition(20, 0, 0);
+        droid = new Player(this.camera, StaticMeshesLoader.load("models/test.dae", "./models/"));
+        //droid.setPosition(20, 0, 0);
 
         GameItem record = new GameItem(StaticMeshesLoader.load("models/recorder.dae", "./models/"));
-        droid.setPosition(25, 0, 0);
+        record.setPosition(25, 0, 0);
 
         cubeAnimItem = AnimMeshesLoader.loadAnimGameItem("models/cube.dae", ".");
         cubeAnimation = cubeAnimItem.getCurrentAnimation();
@@ -303,12 +303,6 @@ public class KubbiGame implements IGameLogic {
 
         // Setup Lights
         setupLights();
-
-        camera.getPosition().x = -17.0f;
-        camera.getPosition().y = 17.0f;
-        camera.getPosition().z = -30.0f;
-        camera.getRotation().x = 20.0f;
-        camera.getRotation().y = 140.f;
 
         //soundManager.setAttenuationModel(AL11.AL_EXPONENT_DISTANCE);
         //setupSounds();
@@ -364,31 +358,13 @@ public class KubbiGame implements IGameLogic {
     }
 
     @Override
-    public void input(Window window, MouseInput mouseInput) {
+    public void input(Window window, MouseInput mouseInput, Keyboard keyboard) {
         sceneChanged = false;
-        cameraInc.set(0, 0, 0);
-        if (window.isKeyPressed(GLFW_KEY_W)) {
-            sceneChanged = true;
-            cameraInc.z = -2;
-        } else if (window.isKeyPressed(GLFW_KEY_S)) {
-            sceneChanged = true;
-            cameraInc.z = 2;
-        }
-        if (window.isKeyPressed(GLFW_KEY_A)) {
-            sceneChanged = true;
-            cameraInc.x = -2;
-        } else if (window.isKeyPressed(GLFW_KEY_D)) {
-            sceneChanged = true;
-            cameraInc.x = 2;
-        }
-        if (window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-            sceneChanged = true;
-            cameraInc.y = -2;
-        } else if (window.isKeyPressed(GLFW_KEY_SPACE)) {
-            sceneChanged = true;
-            cameraInc.y = 2;
-        }
-        if (window.isKeyPressed(GLFW_KEY_LEFT)) {
+
+        if (droid instanceof IControllable)
+            ((IControllable) droid).onInput(window, mouseInput, keyboard);
+
+        /*if (window.isKeyPressed(GLFW_KEY_LEFT)) {
             sceneChanged = true;
             angleInc -= 0.05f;
         } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
@@ -403,23 +379,18 @@ public class KubbiGame implements IGameLogic {
         } else if (window.isKeyPressed(GLFW_KEY_DOWN)) {
             sceneChanged = true;
             pointLightPos.y -= 0.5f;
-        }
+        }*/
     }
 
     @Override
     public void update(float interval, MouseInput mouseInput, Window window) {
-        if (mouseInput.isRightButtonPressed()) {
-            // Update camera based on mouse            
-            Vector2f rotVec = mouseInput.getDisplVec();
-            camera.moveRotation(rotVec.x * MOUSE_SENSITIVITY, rotVec.y * MOUSE_SENSITIVITY, 0);
-            sceneChanged = true;
-        }
+
+        if (droid instanceof IControllable)
+            ((IControllable) droid).onUpdate(interval, mouseInput, window);
+
 
         animation.nextFrame();
         cubeAnimation.nextFrame();
-
-        // Update camera position
-        camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);
 
         lightAngle += angleInc;
         if (lightAngle < 0) {
