@@ -83,7 +83,7 @@ public class Renderer {
         setupFogShader();
 
         bufferPassModelMatrix = new Matrix4f();
-        bufferPassMesh = StaticMeshesLoader.load("models/buffer_pass_mess.obj", "models")[0];
+        bufferPassMesh = StaticMeshesLoader.load("./assets/kubbi/models/buffer_pass_mess.obj", "models")[0];
     }
 
     public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) {
@@ -119,8 +119,8 @@ public class Renderer {
 
     private void setupParticlesShader() throws Exception {
         particlesShaderProgram = new ShaderProgram();
-        particlesShaderProgram.createVertexShader(Utils.loadResource("/shaders/particles_vertex.vs"));
-        particlesShaderProgram.createFragmentShader(Utils.loadResource("/shaders/particles_fragment.fs"));
+        particlesShaderProgram.createVertexShader(Utils.loadResource("./assets/kubbi/shaders/particles_vertex.vs"));
+        particlesShaderProgram.createFragmentShader(Utils.loadResource("./assets/kubbi/shaders/particles_fragment.fs"));
         particlesShaderProgram.link();
 
         particlesShaderProgram.createUniform("viewMatrix");
@@ -133,8 +133,8 @@ public class Renderer {
 
     private void setupSkyBoxShader() throws Exception {
         skyBoxShaderProgram = new ShaderProgram();
-        skyBoxShaderProgram.createVertexShader(Utils.loadResource("/shaders/sb_vertex.vs"));
-        skyBoxShaderProgram.createFragmentShader(Utils.loadResource("/shaders/sb_fragment.fs"));
+        skyBoxShaderProgram.createVertexShader(Utils.loadResource("./assets/kubbi/shaders/sb_vertex.vs"));
+        skyBoxShaderProgram.createFragmentShader(Utils.loadResource("./assets/kubbi/shaders/sb_fragment.fs"));
         skyBoxShaderProgram.link();
 
         // Create uniforms for projection matrix
@@ -151,8 +151,8 @@ public class Renderer {
 
     private void setupGeometryShader() throws Exception {
         gBufferShaderProgram = new ShaderProgram();
-        gBufferShaderProgram.createVertexShader(Utils.loadResource("/shaders/gbuffer_vertex.vs"));
-        gBufferShaderProgram.createFragmentShader(Utils.loadResource("/shaders/gbuffer_fragment.fs"));
+        gBufferShaderProgram.createVertexShader(Utils.loadResource("./assets/kubbi/shaders/gbuffer_vertex.vs"));
+        gBufferShaderProgram.createFragmentShader(Utils.loadResource("./assets/kubbi/shaders/gbuffer_fragment.fs"));
         gBufferShaderProgram.link();
 
         gBufferShaderProgram.createUniform("projectionMatrix");
@@ -179,8 +179,8 @@ public class Renderer {
 
     private void setupDirLightShader() throws Exception {
         dirLightShaderProgram = new ShaderProgram();
-        dirLightShaderProgram.createVertexShader(Utils.loadResource("/shaders/light_vertex.vs"));
-        dirLightShaderProgram.createFragmentShader(Utils.loadResource("/shaders/dir_light_fragment.fs"));
+        dirLightShaderProgram.createVertexShader(Utils.loadResource("./assets/kubbi/shaders/light_vertex.vs"));
+        dirLightShaderProgram.createFragmentShader(Utils.loadResource("./assets/kubbi/shaders/dir_light_fragment.fs"));
         dirLightShaderProgram.link();
 
         dirLightShaderProgram.createUniform("modelMatrix");
@@ -200,8 +200,8 @@ public class Renderer {
 
     private void setupPointLightShader() throws Exception {
         pointLightShaderProgram = new ShaderProgram();
-        pointLightShaderProgram.createVertexShader(Utils.loadResource("/shaders/light_vertex.vs"));
-        pointLightShaderProgram.createFragmentShader(Utils.loadResource("/shaders/point_light_fragment.fs"));
+        pointLightShaderProgram.createVertexShader(Utils.loadResource("./assets/kubbi/shaders/light_vertex.vs"));
+        pointLightShaderProgram.createFragmentShader(Utils.loadResource("./assets/kubbi/shaders/point_light_fragment.fs"));
         pointLightShaderProgram.link();
 
         pointLightShaderProgram.createUniform("modelMatrix");
@@ -220,8 +220,8 @@ public class Renderer {
 
     private void setupFogShader() throws Exception {
         fogShaderProgram = new ShaderProgram();
-        fogShaderProgram.createVertexShader(Utils.loadResource("/shaders/light_vertex.vs"));
-        fogShaderProgram.createFragmentShader(Utils.loadResource("/shaders/fog_fragment.fs"));
+        fogShaderProgram.createVertexShader(Utils.loadResource("./assets/kubbi/shaders/light_vertex.vs"));
+        fogShaderProgram.createFragmentShader(Utils.loadResource("./assets/kubbi/shaders/fog_fragment.fs"));
         fogShaderProgram.link();
 
         fogShaderProgram.createUniform("modelMatrix");

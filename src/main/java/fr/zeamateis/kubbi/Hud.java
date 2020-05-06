@@ -40,7 +40,7 @@ public class Hud {
             throw new Exception("Could not init nanovg");
         }
 
-        fontBuffer = Utils.ioResourceToByteBuffer("/fonts/OpenSans-Bold.ttf", 150 * 1024);
+        fontBuffer = Utils.ioResourceToByteBuffer("assets/kubbi/fonts/OpenSans-Bold.ttf", 150 * 1024);
         int font = nvgCreateFontMem(vg, FONT_NAME, fontBuffer, 0);
         if (font == -1) {
             throw new Exception("Could not add font");

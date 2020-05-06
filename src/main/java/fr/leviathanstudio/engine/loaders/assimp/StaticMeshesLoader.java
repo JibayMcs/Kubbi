@@ -4,6 +4,8 @@ import fr.leviathanstudio.engine.Utils;
 import fr.leviathanstudio.engine.graph.Material;
 import fr.leviathanstudio.engine.graph.Mesh;
 import fr.leviathanstudio.engine.graph.Texture;
+import fr.leviathanstudio.engine.resources.Asset;
+import fr.leviathanstudio.engine.resources.AssetManager;
 import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.*;
@@ -15,6 +17,10 @@ import java.util.List;
 import static org.lwjgl.assimp.Assimp.*;
 
 public class StaticMeshesLoader {
+
+    public static Mesh[] load(AssetManager assetManager, Asset assetIn) throws Exception {
+        return load(assetManager.getAssetPath(assetIn).toFile().getPath(), assetManager.getAssetPath(assetIn).getParent().toFile().getPath());
+    }
 
     public static Mesh[] load(String resourcePath, String texturesDir) throws Exception {
         return load(resourcePath, texturesDir,

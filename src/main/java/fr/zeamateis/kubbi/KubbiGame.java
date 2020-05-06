@@ -18,6 +18,8 @@ import fr.leviathanstudio.engine.items.SkyBox;
 import fr.leviathanstudio.engine.loaders.assimp.AnimMeshesLoader;
 import fr.leviathanstudio.engine.loaders.assimp.StaticMeshesLoader;
 import fr.leviathanstudio.engine.loaders.obj.OBJLoader;
+import fr.leviathanstudio.engine.resources.Asset;
+import fr.leviathanstudio.engine.resources.AssetManager;
 import fr.zeamateis.kubbi.common.entity.IControllable;
 import fr.zeamateis.kubbi.common.entity.Player;
 import org.joml.Vector3f;
@@ -63,6 +65,8 @@ public class KubbiGame implements IGameLogic {
     //private enum Sounds {MUSIC, BEEP, FIRE}
     GameItem droid;
 
+    private AssetManager assetManager = new AssetManager("kubbi");
+
     public KubbiGame() {
         renderer = new Renderer();
         camera = new Camera();
@@ -106,7 +110,7 @@ public class KubbiGame implements IGameLogic {
             IntBuffer h = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
 
-            buf = stbi_load("./textures/heightmap.png", w, h, channels, 4);
+            buf = stbi_load("./assets/kubbi/textures/heightmap.png", w, h, channels, 4);
             if (buf == null) {
                 throw new Exception("Image file not loaded: " + stbi_failure_reason());
             }
@@ -211,8 +215,8 @@ public class KubbiGame implements IGameLogic {
                 16, 18, 19, 17, 16, 19,
                 // Back face
                 4, 6, 7, 5, 4, 7,};
-        Texture texture = new Texture("./textures/rock.png");
-        Texture normalMap = new Texture("./textures/rock_normals.png");
+        Texture texture = new Texture("./assets/kubbi/textures/rock.png");
+        Texture normalMap = new Texture("./assets/kubbi/textures/rock_normals.png");
 
         Material quadMaterial2 = new Material(texture, reflectance);
         quadMaterial2.setNormalMap(normalMap);
@@ -240,21 +244,24 @@ public class KubbiGame implements IGameLogic {
 
         //====END TERRAIN====//
 
-        animItem = AnimMeshesLoader.loadAnimGameItem("models/bob/boblamp.md5mesh", ".");
+        animItem = AnimMeshesLoader.loadAnimGameItem("./assets/kubbi/models/bob/boblamp.md5mesh", "./assets/kubbi/");
         animItem.setScale(0.05f);
         animation = animItem.getCurrentAnimation();
         animItem.setPosition(10, 0, 0);
 
-        GameItem bus = new GameItem(StaticMeshesLoader.load("models/bus.dae", "./models/"));
+        GameItem bus = new GameItem(StaticMeshesLoader.load("./assets/kubbi/models/bus.dae", "./assets/kubbi/models/"));
         bus.setPosition(15, 0, 0);
 
-        droid = new Player(this.camera, StaticMeshesLoader.load("models/test.dae", "./models/"));
+        Asset droidModel = new Asset("droidModel", "models/test.dae");
+        assetManager.registerAsset(droidModel);
+
+        droid = new Player(this.camera, StaticMeshesLoader.load(assetManager, droidModel));
         //droid.setPosition(20, 0, 0);
 
-        GameItem record = new GameItem(StaticMeshesLoader.load("models/recorder.dae", "./models/"));
+        GameItem record = new GameItem(StaticMeshesLoader.load("./assets/kubbi/models/recorder.dae", "./assets/kubbi/models/"));
         record.setPosition(25, 0, 0);
 
-        cubeAnimItem = AnimMeshesLoader.loadAnimGameItem("models/cube.dae", ".");
+        cubeAnimItem = AnimMeshesLoader.loadAnimGameItem("./assets/kubbi/models/cube.dae", ".");
         cubeAnimation = cubeAnimItem.getCurrentAnimation();
         cubeAnimItem.setPosition(30, 0, 0);
 
@@ -276,8 +283,8 @@ public class KubbiGame implements IGameLogic {
         float range = 0.2f;
         float scale = 1.0f;
 
-        Mesh partMesh = OBJLoader.loadMesh("./models/particle.obj", maxParticles);
-        Texture particleTexture = new Texture("./textures/particle_anim.png", 4, 4);
+        Mesh partMesh = OBJLoader.loadMesh("./assets/kubbi/models/particle.obj", maxParticles);
+        Texture particleTexture = new Texture("./assets/kubbi/textures/particle_anim.png", 4, 4);
         Material partMaterial = new Material(particleTexture, reflectance);
         partMesh.setMaterial(partMaterial);
         Particle particle = new Particle(partMesh, particleSpeed, ttl, 100);
@@ -297,7 +304,7 @@ public class KubbiGame implements IGameLogic {
         // scene.setFog(new Fog(true, fogColour, 0.02f));
 
         // Setup  SkyBox
-        SkyBox skyBox = new SkyBox("models/skybox.obj", new Vector4f(0.65f, 0.65f, 0.65f, 1.0f));
+        SkyBox skyBox = new SkyBox("./assets/kubbi/models/skybox.obj", new Vector4f(0.65f, 0.65f, 0.65f, 1.0f));
         skyBox.setScale(skyBoxScale);
         scene.setSkyBox(skyBox);
 

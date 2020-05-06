@@ -19,7 +19,7 @@ public class Utils {
 
     public static String loadResource(String fileName) throws Exception {
         String result;
-        try (InputStream in = Utils.class.getResourceAsStream(fileName);
+        try (InputStream in = new FileInputStream(new File(fileName));
              Scanner scanner = new Scanner(in, java.nio.charset.StandardCharsets.UTF_8.name())) {
             result = scanner.useDelimiter("\\A").next();
         }
