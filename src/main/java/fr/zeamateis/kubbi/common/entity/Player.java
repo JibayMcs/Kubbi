@@ -57,8 +57,8 @@ public class Player extends GameItem implements IControllable {
                     0
             );
 
-            this.getRotation().x -= rotVec.x * (MOUSE_SENSITIVITY / 2);
-            this.getRotation().y += rotVec.y * (MOUSE_SENSITIVITY / 2);
+            // this.getRotation().x -= rotVec.x * (MOUSE_SENSITIVITY / 2);
+            // this.getRotation().y += rotVec.y * (MOUSE_SENSITIVITY / 2);
         }
 
         // Update camera position

@@ -4,6 +4,7 @@ import fr.leviathanstudio.engine.IGameLogic;
 import fr.leviathanstudio.engine.Scene;
 import fr.leviathanstudio.engine.SceneLight;
 import fr.leviathanstudio.engine.Window;
+import fr.leviathanstudio.engine.config.Configuration;
 import fr.leviathanstudio.engine.graph.*;
 import fr.leviathanstudio.engine.graph.anim.AnimGameItem;
 import fr.leviathanstudio.engine.graph.anim.Animation;
@@ -66,24 +67,26 @@ public class KubbiGame implements IGameLogic {
     GameItem droid;
 
     private AssetManager assetManager = new AssetManager("kubbi");
+    private final Configuration configurationManager;
 
-    public KubbiGame() {
-        renderer = new Renderer();
-        camera = new Camera();
+    public KubbiGame(Configuration configurationManager) {
+        this.configurationManager = configurationManager;
+        this.renderer = new Renderer();
+        this.camera = new Camera();
         // soundManager = new SoundManager();
-        angleInc = 0;
-        lightAngle = 90;
-        firstTime = true;
+        this.angleInc = 0;
+        this.lightAngle = 90;
+        this.firstTime = true;
     }
 
     @Override
     public void init(Window window) throws Exception {
         // soundManager.init();
-        hud.init(window);
+        this.hud.init(window);
 
-        renderer.init(window);
+        this.renderer.init(window);
 
-        scene = new Scene();
+        this.scene = new Scene();
 
         //====TERRAIN====//
 
@@ -240,32 +243,32 @@ public class KubbiGame implements IGameLogic {
             posx = startx;
             posz -= inc;
         }
-        //scene.setGameItems(gameItems);
+        scene.setGameItems(gameItems);
 
         //====END TERRAIN====//
 
-        animItem = AnimMeshesLoader.loadAnimGameItem("./assets/kubbi/models/bob/boblamp.md5mesh", "./assets/kubbi/");
-        animItem.setScale(0.05f);
-        animation = animItem.getCurrentAnimation();
-        animItem.setPosition(10, 0, 0);
+        this.animItem = AnimMeshesLoader.loadAnimGameItem("./assets/kubbi/models/bob/boblamp.md5mesh", "./assets/kubbi/");
+        this.animItem.setScale(0.05f);
+        this.animation = this.animItem.getCurrentAnimation();
+        this.animItem.setPosition(10, 0, 0);
 
         GameItem bus = new GameItem(StaticMeshesLoader.load("./assets/kubbi/models/bus.dae", "./assets/kubbi/models/"));
         bus.setPosition(15, 0, 0);
 
         Asset droidModel = new Asset("droidModel", "models/test.dae");
-        assetManager.registerAsset(droidModel);
+        this.assetManager.registerAsset(droidModel);
 
-        droid = new Player(this.camera, StaticMeshesLoader.load(assetManager, droidModel));
+        this.droid = new Player(this.camera, StaticMeshesLoader.load(this.assetManager, droidModel));
         //droid.setPosition(20, 0, 0);
 
         GameItem record = new GameItem(StaticMeshesLoader.load("./assets/kubbi/models/recorder.dae", "./assets/kubbi/models/"));
         record.setPosition(25, 0, 0);
 
-        cubeAnimItem = AnimMeshesLoader.loadAnimGameItem("./assets/kubbi/models/cube.dae", ".");
-        cubeAnimation = cubeAnimItem.getCurrentAnimation();
-        cubeAnimItem.setPosition(30, 0, 0);
+        this.cubeAnimItem = AnimMeshesLoader.loadAnimGameItem("./assets/kubbi/models/cube.dae", ".");
+        this.cubeAnimation = this.cubeAnimItem.getCurrentAnimation();
+        this.cubeAnimItem.setPosition(30, 0, 0);
 
-        scene.setGameItems(
+        this.scene.setGameItems(
                 new GameItem[]{
                         animItem,
                         droid,
@@ -289,15 +292,15 @@ public class KubbiGame implements IGameLogic {
         partMesh.setMaterial(partMaterial);
         Particle particle = new Particle(partMesh, particleSpeed, ttl, 100);
         particle.setScale(scale);
-        particleEmitter = new FlowParticleEmitter(particle, maxParticles, creationPeriodMillis);
-        particleEmitter.setActive(true);
-        particleEmitter.setPositionRndRange(range);
-        particleEmitter.setSpeedRndRange(range);
-        particleEmitter.setAnimRange(10);
+        this.particleEmitter = new FlowParticleEmitter(particle, maxParticles, creationPeriodMillis);
+        this.particleEmitter.setActive(true);
+        this.particleEmitter.setPositionRndRange(range);
+        this.particleEmitter.setSpeedRndRange(range);
+        this.particleEmitter.setAnimRange(10);
         //this.scene.setParticleEmitters(new FlowParticleEmitter[]{particleEmitter});
 
         // Shadows
-        scene.setRenderShadows(true);
+        this.scene.setRenderShadows(true);
 
         // Fog
         Vector3f fogColour = new Vector3f(0.5f, 0.5f, 0.5f);
@@ -306,7 +309,7 @@ public class KubbiGame implements IGameLogic {
         // Setup  SkyBox
         SkyBox skyBox = new SkyBox("./assets/kubbi/models/skybox.obj", new Vector4f(0.65f, 0.65f, 0.65f, 1.0f));
         skyBox.setScale(skyBoxScale);
-        scene.setSkyBox(skyBox);
+        this.scene.setSkyBox(skyBox);
 
         // Setup Lights
         setupLights();
@@ -344,7 +347,7 @@ public class KubbiGame implements IGameLogic {
 
     private void setupLights() {
         SceneLight sceneLight = new SceneLight();
-        scene.setSceneLight(sceneLight);
+        this.scene.setSceneLight(sceneLight);
 
         // Ambient Light
         sceneLight.setAmbientLight(new Vector3f(0.0f, 0.0f, 0.0f));
@@ -352,7 +355,7 @@ public class KubbiGame implements IGameLogic {
 
         // Directional Light
         float lightIntensity = 1.0f;
-        pointLightPos = new Vector3f(0, 1, 1);
+        this.pointLightPos = new Vector3f(0, 1, 1);
         DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), pointLightPos, lightIntensity);
         sceneLight.setDirectionalLight(directionalLight);
 
@@ -366,10 +369,10 @@ public class KubbiGame implements IGameLogic {
 
     @Override
     public void input(Window window, MouseInput mouseInput, Keyboard keyboard) {
-        sceneChanged = false;
+        this.sceneChanged = false;
 
-        if (droid instanceof IControllable)
-            ((IControllable) droid).onInput(window, mouseInput, keyboard);
+        if (this.droid instanceof IControllable)
+            ((IControllable) this.droid).onInput(window, mouseInput, keyboard);
 
         /*if (window.isKeyPressed(GLFW_KEY_LEFT)) {
             sceneChanged = true;
@@ -392,18 +395,18 @@ public class KubbiGame implements IGameLogic {
     @Override
     public void update(float interval, MouseInput mouseInput, Window window) {
 
-        if (droid instanceof IControllable)
-            ((IControllable) droid).onUpdate(interval, mouseInput, window);
+        if (this.droid instanceof IControllable)
+            ((IControllable) this.droid).onUpdate(interval, mouseInput, window);
 
 
-        animation.nextFrame();
-        cubeAnimation.nextFrame();
+        this.animation.nextFrame();
+        this.cubeAnimation.nextFrame();
 
-        lightAngle += angleInc;
-        if (lightAngle < 0) {
-            lightAngle = 0;
-        } else if (lightAngle > 180) {
-            lightAngle = 180;
+        this.lightAngle += this.angleInc;
+        if (this.lightAngle < 0) {
+            this.lightAngle = 0;
+        } else if (this.lightAngle > 180) {
+            this.lightAngle = 180;
         }
         float zValue = (float) Math.cos(Math.toRadians(lightAngle));
         float yValue = (float) Math.sin(Math.toRadians(lightAngle));
@@ -414,7 +417,7 @@ public class KubbiGame implements IGameLogic {
         lightDirection.normalize();
 
         // Update view matrix
-        camera.updateViewMatrix();
+        this.camera.updateViewMatrix();
 
         //particleEmitter.update((long) (interval * 1000));
 
@@ -423,22 +426,21 @@ public class KubbiGame implements IGameLogic {
 
     @Override
     public void render(Window window) {
-        if (firstTime) {
-            sceneChanged = true;
-            firstTime = false;
+        if (this.firstTime) {
+            this.sceneChanged = true;
+            this.firstTime = false;
         }
-        renderer.render(window, camera, scene, sceneChanged);
+        this.renderer.render(window, camera, scene, sceneChanged);
         //hud.render(window);
     }
 
     @Override
     public void cleanup() {
-        renderer.cleanup();
+        this.renderer.cleanup();
         //soundManager.cleanup();
-
-        scene.cleanup();
-        if (hud != null) {
-            hud.cleanup();
+        this.scene.cleanup();
+        if (this.hud != null) {
+            this.hud.cleanup();
         }
     }
 }

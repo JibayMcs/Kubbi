@@ -45,9 +45,11 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-openal::$lwjglNatives"
 
-    // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation group: 'com.google.code.gson', name: 'gson', version:"${project.gsonVersion}"
-
     implementation "org.joml:joml:${project.jomlVersion}"
 
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation group: 'com.google.code.gson', name: 'gson', version: "${project.gsonVersion}"
+
+    // https://mvnrepository.com/artifact/com.typesafe/config
+    implementation group: 'com.typesafe', name: 'config', version: "${project.typesafeConfigVersion}"
 }
