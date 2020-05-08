@@ -87,7 +87,7 @@ public class Window {
         // Create the window
         windowHandle = glfwCreateWindow(width, height, title, NULL, NULL);
         if (windowHandle == NULL) {
-            throw new RuntimeException("Failed to create the GLFW window");
+            GameEngine.LOGGER.error("Failed to create the GLFW window");
         }
 
         glfwSetFramebufferSizeCallback(windowHandle, (window, width, height) -> {

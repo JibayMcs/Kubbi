@@ -2,8 +2,12 @@ package fr.leviathanstudio.engine;
 
 import fr.leviathanstudio.engine.inputs.Keyboard;
 import fr.leviathanstudio.engine.inputs.MouseInput;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GameEngine implements Runnable {
+
+    public static final Logger LOGGER = LogManager.getRootLogger();
 
     public static final int TARGET_FPS = 120;
 
@@ -44,20 +48,35 @@ public class GameEngine implements Runnable {
             init();
             gameLoop();
         } catch (Exception excp) {
-            excp.printStackTrace();
+            LOGGER.throwing(excp);
         } finally {
             cleanup();
         }
     }
 
     protected void init() throws Exception {
-        window.init();
-        timer.init();
-        mouseInput.init(window);
+        LOGGER.debug("Initialize Widow...");
+        this.window.init();
+        LOGGER.debug("Widow Initialized!");
+
+        LOGGER.debug("Initialize Timer...");
+        this.timer.init();
+        LOGGER.debug("Timer Initialized!");
+
+        LOGGER.debug("Initialize MouseInput...");
+        this.mouseInput.init(window);
+        LOGGER.debug("MouseInput Initialized!");
+
+        LOGGER.debug("Initialize Keyboard...");
         this.keyboard.init(window.getWindowHandle());
-        gameLogic.init(window);
-        lastFps = timer.getTime();
-        fps = 0;
+        LOGGER.debug("Keyboard Initialized!");
+
+        LOGGER.debug("Initialize Game Logic...");
+        this.gameLogic.init(window);
+        LOGGER.debug("Game Logic Initialized!");
+
+        this.lastFps = this.timer.getTime();
+        this.fps = 0;
     }
 
     protected void gameLoop() {
@@ -86,7 +105,8 @@ public class GameEngine implements Runnable {
     }
 
     protected void cleanup() {
-        gameLogic.cleanup();
+        this.gameLogic.cleanup();
+        LOGGER.debug("Game Logic Cleaned!");
     }
 
     private void sync() {
@@ -96,6 +116,7 @@ public class GameEngine implements Runnable {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException ie) {
+                LOGGER.throwing(ie);
             }
         }
     }

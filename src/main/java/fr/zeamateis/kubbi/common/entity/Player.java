@@ -3,6 +3,7 @@ package fr.zeamateis.kubbi.common.entity;
 import fr.leviathanstudio.engine.Window;
 import fr.leviathanstudio.engine.graph.Camera;
 import fr.leviathanstudio.engine.graph.Mesh;
+import fr.leviathanstudio.engine.inputs.Keybinding;
 import fr.leviathanstudio.engine.inputs.Keyboard;
 import fr.leviathanstudio.engine.inputs.MouseInput;
 import fr.leviathanstudio.engine.items.GameItem;
@@ -29,19 +30,19 @@ public class Player extends GameItem implements IControllable {
     @Override
     public void onInput(Window window, MouseInput mouseInput, Keyboard keyboard) {
         this.camera.getCameraInc().set(0, 0, 0);
-        if (keyboard.isKeyPressed(Keyboard.Z)) {
+        if (keyboard.isKeyPressed(Keybinding.FORWARD)) {
             this.camera.getCameraInc().z = -2;
-        } else if (keyboard.isKeyPressed(Keyboard.S)) {
+        } else if (keyboard.isKeyPressed(Keybinding.BACKWARD)) {
             this.camera.getCameraInc().z = 2;
         }
-        if (keyboard.isKeyPressed(Keyboard.Q)) {
+        if (keyboard.isKeyPressed(Keybinding.LEFT)) {
             this.camera.getCameraInc().x = -2;
-        } else if (keyboard.isKeyPressed(Keyboard.D)) {
+        } else if (keyboard.isKeyPressed(Keybinding.RIGHT)) {
             this.camera.getCameraInc().x = 2;
         }
-        if (keyboard.isKeyPressed(Keyboard.LEFT_SHIFT)) {
+        if (keyboard.isKeyPressed(Keybinding.CROUCH)) {
             this.camera.getCameraInc().y = -2;
-        } else if (keyboard.isKeyPressed(Keyboard.SPACE)) {
+        } else if (keyboard.isKeyPressed(Keybinding.JUMP)) {
             this.camera.getCameraInc().y = 2;
         }
     }

@@ -1,6 +1,8 @@
 package fr.leviathanstudio.engine.config;
 
 import com.typesafe.config.*;
+import fr.leviathanstudio.engine.GameEngine;
+import fr.zeamateis.kubbi.KubbiClient;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,20 +11,26 @@ import java.time.Duration;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author ZeAmateis
  */
 public class Configuration {
+
     private final Path configFilePath;
     private Config config;
 
-    public Configuration(Path configFilePath) throws IOException {
+    public Configuration(Path configFilePath) {
         this.configFilePath = configFilePath;
-
         if (!configFilePath.getParent().toFile().exists())
-            Files.createDirectories(configFilePath.getParent());
+            try {
+                Files.createDirectories(configFilePath.getParent());
+            } catch (IOException ex) {
+                GameEngine.LOGGER.error("Unable to create directory {}", configFilePath.getParent());
+            }
 
         this.config = ConfigFactory.parseFile(configFilePath.toFile());
     }
@@ -33,6 +41,20 @@ public class Configuration {
 
     public Config getConfig() {
         return config;
+    }
+
+    public Locale getLocale(String path) {
+        AtomicReference<Locale> locale = new AtomicReference<>();
+        List<String> stringList = getStringList(path);
+        if (stringList.size() == 1) {
+            locale.set(new Locale(stringList.get(0)));
+        } else if (stringList.size() >= 1 && stringList.size() < 3) {
+            locale.set(new Locale(stringList.get(0), stringList.get(1)));
+        } else if (stringList.size() >= 3) {
+            KubbiClient.LOGGER.debug("Too many arguments for language configuration, assuming second parameter is correct");
+            locale.set(new Locale(stringList.get(0), stringList.get(1)));
+        }
+        return locale.get();
     }
 
     /**

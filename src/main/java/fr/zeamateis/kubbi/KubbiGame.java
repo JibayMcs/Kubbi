@@ -21,6 +21,7 @@ import fr.leviathanstudio.engine.loaders.assimp.StaticMeshesLoader;
 import fr.leviathanstudio.engine.loaders.obj.OBJLoader;
 import fr.leviathanstudio.engine.resources.Asset;
 import fr.leviathanstudio.engine.resources.AssetManager;
+import fr.leviathanstudio.engine.resources.Translation;
 import fr.zeamateis.kubbi.common.entity.IControllable;
 import fr.zeamateis.kubbi.common.entity.Player;
 import org.joml.Vector3f;
@@ -68,8 +69,10 @@ public class KubbiGame implements IGameLogic {
 
     private AssetManager assetManager = new AssetManager("kubbi");
     private final Configuration configurationManager;
+    private final Translation translation;
 
     public KubbiGame(Configuration configurationManager) {
+        this.translation = new Translation(assetManager, null);
         this.configurationManager = configurationManager;
         this.renderer = new Renderer();
         this.camera = new Camera();

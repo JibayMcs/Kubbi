@@ -1,5 +1,7 @@
 package fr.leviathanstudio.engine.resources;
 
+import fr.leviathanstudio.engine.GameEngine;
+
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,7 +33,7 @@ public class AssetManager {
                 this.assetsList.put(assetIn.getAssetName(), assetIn);
             } else throw new FileNotFoundException(String.format("Asset [%s] was not found !", assetIn.toString()));
         } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+            GameEngine.LOGGER.throwing(ex);
         }
 
     }

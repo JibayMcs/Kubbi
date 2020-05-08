@@ -52,4 +52,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.typesafe/config
     implementation group: 'com.typesafe', name: 'config', version: "${project.typesafeConfigVersion}"
+
+    //Apache Log4j2
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.2'
+
 }
