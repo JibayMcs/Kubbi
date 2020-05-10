@@ -3,4 +3,7 @@
 /build/
 /build/classes/java/main/
 /out/
+
+# GameEngine / Kubbi
+/assets/
 /logs/
