@@ -1,9 +1,19 @@
 # Project exclude paths
+/.idea/
 /.gradle/
 /build/
 /build/classes/java/main/
 /out/
 
+# Gradle exclusion
+!build.gradle
+!settings.gradle
+!gradle.properties
+!*.md
+!gradlew
+!gradlew.bat
+
 # GameEngine / Kubbi
 /assets/
 /logs/
+*.
