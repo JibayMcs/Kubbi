@@ -30,6 +30,8 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_load;
@@ -116,7 +118,7 @@ public class KubbiGame implements IGameLogic {
             IntBuffer h = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
 
-            buf = stbi_load("./assets/kubbi/textures/heightmap.png", w, h, channels, 4);
+            buf = stbi_load("./assets/kubbi/textures/heightmap2.png", w, h, channels, 4);
             if (buf == null) {
                 throw new Exception("Image file not loaded: " + stbi_failure_reason());
             }
@@ -229,7 +231,7 @@ public class KubbiGame implements IGameLogic {
         Mesh cubeMesh = new Mesh(positions, textCoords, textCoords, indices);
 
         cubeMesh.setMaterial(quadMaterial2);
-        GameItem[] gameItems = new GameItem[instances];
+        List<GameItem> gameItems = new ArrayList<>(instances);
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 GameItem gameItem = new GameItem(cubeMesh);
@@ -239,14 +241,13 @@ public class KubbiGame implements IGameLogic {
                 gameItem.setPosition(posx, starty + incy, posz);
                 int textPos = Math.random() > 0.5f ? 0 : 1;
                 gameItem.setTextPos(textPos);
-                gameItems[i * width + j] = gameItem;
+                gameItems.add(i * width + j, gameItem);
 
                 posx += inc;
             }
             posx = startx;
             posz -= inc;
         }
-        scene.setGameItems(gameItems);
 
         //====END TERRAIN====//
 
@@ -271,15 +272,15 @@ public class KubbiGame implements IGameLogic {
         this.cubeAnimation = this.cubeAnimItem.getCurrentAnimation();
         this.cubeAnimItem.setPosition(30, 0, 0);
 
-        this.scene.setGameItems(
-                new GameItem[]{
-                        animItem,
-                        droid,
-                        bus,
-                        record,
-                        cubeAnimItem
-                }
-        );
+        List<GameItem> gameItemList = new ArrayList<>();
+        gameItemList.add(animItem);
+        gameItemList.add(droid);
+        gameItemList.add(bus);
+        gameItemList.add(record);
+        gameItemList.add(cubeAnimItem);
+        gameItemList.addAll(gameItems);
+        this.scene.setGameItems(gameItemList);
+
 
         int maxParticles = 200;
         Vector3f particleSpeed = new Vector3f(0, 1, 0);
@@ -319,6 +320,9 @@ public class KubbiGame implements IGameLogic {
 
         //soundManager.setAttenuationModel(AL11.AL_EXPONENT_DISTANCE);
         //setupSounds();
+
+        this.scene.saveScene();
+
     }
 
    /* private void setupSounds() throws Exception {

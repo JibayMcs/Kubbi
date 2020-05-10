@@ -1,5 +1,7 @@
 package fr.leviathanstudio.engine;
 
+import fr.leviathanstudio.engine.data.DataStorageUtils;
+import fr.leviathanstudio.engine.data.JsonStorageUtils;
 import fr.leviathanstudio.engine.graph.InstancedMesh;
 import fr.leviathanstudio.engine.graph.Mesh;
 import fr.leviathanstudio.engine.graph.particles.IParticleEmitter;
@@ -7,6 +9,7 @@ import fr.leviathanstudio.engine.graph.weather.Fog;
 import fr.leviathanstudio.engine.items.GameItem;
 import fr.leviathanstudio.engine.items.SkyBox;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +31,8 @@ public class Scene {
 
     private IParticleEmitter[] particleEmitters;
 
+    private List<GameItem> gameItems = new ArrayList<>();
+
     public Scene() {
         meshMap = new HashMap();
         instancedMeshMap = new HashMap();
@@ -47,11 +52,13 @@ public class Scene {
         return renderShadows;
     }
 
-    public void setGameItems(GameItem[] gameItems) {
+    public void setGameItems(List<GameItem> gameItems) {
         // Create a map of meshes to speed up rendering
-        int numGameItems = gameItems != null ? gameItems.length : 0;
+        int numGameItems = gameItems != null ? gameItems.size() : 0;
         for (int i = 0; i < numGameItems; i++) {
-            GameItem gameItem = gameItems[i];
+            GameItem gameItem = gameItems.get(i);
+            this.gameItems.add(gameItem);
+
             Mesh[] meshes = gameItem.getMeshes();
             for (Mesh mesh : meshes) {
                 boolean instancedMesh = mesh instanceof InstancedMesh;
@@ -65,6 +72,7 @@ public class Scene {
                     }
                 }
                 list.add(gameItem);
+
             }
         }
     }
@@ -125,4 +133,49 @@ public class Scene {
         this.particleEmitters = particleEmitters;
     }
 
+    public void saveScene() {
+        Thread thread = new Thread(() -> {
+            List<DataGameItem> dataGameItems = new ArrayList<>();
+            if (!gameItems.isEmpty()) {
+                for (int i = 0; i < gameItems.size(); i++) {
+                    DataGameItem dataGameItem = new DataGameItem(gameItems.get(i));
+                    dataGameItems.add(dataGameItem);
+                }
+                System.out.println("Number Of Game Objects: " + gameItems.size());
+                JsonStorageUtils.compressToFile(dataGameItems, Paths.get("./testmap.mapp"));
+                DataStorageUtils.decompressToFile(Paths.get("./testmap.mapp"), Paths.get("./testmap-decompressed.json"));
+
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    static class DataGameItem {
+        private final boolean selected;
+
+        //private final Mesh[] meshes;
+
+        private final float[] position;
+
+        private final float scale;
+
+        private final float[] rotation;
+
+        private final int textPos;
+
+        private final boolean disableFrustumCulling;
+
+        private final boolean insideFrustum;
+
+        public DataGameItem(GameItem gameItemIn) {
+            this.selected = gameItemIn.isSelected();
+            this.position = new float[]{gameItemIn.getPosition().x, gameItemIn.getPosition().z, gameItemIn.getPosition().z};
+            this.scale = gameItemIn.getScale();
+            this.rotation = new float[]{gameItemIn.getRotation().w, gameItemIn.getRotation().x, gameItemIn.getRotation().y, gameItemIn.getRotation().z};
+            this.textPos = gameItemIn.getTextPos();
+            this.disableFrustumCulling = gameItemIn.isDisableFrustumCulling();
+            this.insideFrustum = gameItemIn.isInsideFrustum();
+        }
+    }
 }

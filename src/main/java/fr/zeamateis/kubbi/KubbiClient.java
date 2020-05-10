@@ -7,14 +7,16 @@ import fr.leviathanstudio.engine.config.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.zip.DataFormatException;
 
 public class KubbiClient {
     private static Configuration configuration;
     public static final Logger LOGGER = LogManager.getLogger(KubbiClient.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, DataFormatException {
         try {
             Path configPath = Paths.get("./config/kubbi.conf");
             configuration = new Configuration(configPath);
